@@ -4,25 +4,49 @@ from esprit import *
 from con_map import *
 from green_func import *
 
-class MiniPoleMatrix:
-    '''
-    A python program for obtaining the minimal pole representation, suitable for any case.
-    '''
-    def __init__(self, G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = True, compute_const = False, pole_real = False, plane = None, include_n0 = False, elementwise = True, Lfactor = 0.4, k_max = 999, x_range = [-np.inf, np.inf], y_range = [-np.inf, np.inf]):
+class MiniPole:
+    def __init__(self, G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = False, compute_const = False, plane = None, include_n0 = True, k_max = 999, ratio_max = 10):
         '''
-        G_w is an (n_w, n_orb, n_orb) array containing the Matsubara data, w (real-valued) is the corresponding sampling grid;
-        If G_symmetric is True, the Matsubara data will be symmetrized so that G_{ij}(z) = G_{ji}(z);
-        If the error tolerance err is given, the continuation will be carried out in this tolerance;
-        else the tolerance will be chosen to be the last singular value in the exponentially decaying range;
-        It is suggested to always provide err (>=1.e-12);
-        M is the number of poles in the final result. If it is not given, the precision in the first ESPRIT will be used to extract poles in the second ESPRIT;
-        symmetry determines whether to preserve the up-down symmetry;
-        compute_const determines whether to compute the constant in G(z) = sum_l Al / (z - xl) + const. If it is False, const is fixed at 0;
-        pole_real determines whether to restrict the poles exactly on the real axis when symmetry is True;
-        plane decides whehter to use the original plane (z plane) or mapped plane (w plane) to compute pole weights;
-        Lfactor determines the L parameter in ESPRIT (L = Lfactor * N, where N is the number of sampling points);
-        k_max is the maximum number of contour integrals;
-        Only poles located within the rectangle  x_range[0] < x < x_rang[1], y_range[0] < y < y_range[1] are retained.
+        A Python program for obtaining the matrix-valued minimal pole representation.
+
+        Parameters
+        ----------
+        G_w : ndarray
+            An (n_w, n_orb, n_orb) array containing the Matsubara data.
+        w : ndarray
+            An (n_w,) array containing the corresponding real-valued Matsubara grid.
+        n0 : int or str, default="auto"
+            If "auto", n0 is automatically selected with an additional shift specified by n0_shift.
+            If a non-negative integer is provided, n0 is fixed at that value.
+        n0_shift : int, default=0
+            The shift applied to the automatically determined n0.
+        err : float
+            Error tolerance for calculations.
+        err_type : str, default="abs"
+            Specifies the type of error: "abs" for absolute error or "rel" for relative error.
+        M : int, optional
+            The number of poles in the final result. If not specified, the precision from the first ESPRIT is used to extract poles in the second ESPRIT.
+        symmetry : bool, default=False
+            Determines whether to preserve up-down symmetry.
+        G_symmetric : bool, default=False
+            If True, the Matsubara data will be symmetrized such that G_{ij}(z) = G_{ji}(z).
+        compute_const : bool, default=False
+            Determines whether to compute the constant term in G(z) = sum_l Al / (z - xl) + const.
+            If False, the constant term is fixed at 0.
+        plane : str, optional
+            Specifies whether to use the original z-plane or the mapped w-plane to compute pole weights.
+        include_n0 : bool, default=True
+            Determines whether to include the first n0 input points when weights are calculated in the z-plane.
+        k_max : int, default=999
+            The maximum number of contour integrals.
+        ratio_max : float, default=10
+            The maximum ratio of oscillation when automatically choosing n0.
+        
+        Returns
+        -------
+        Minimal pole representation of the given data.
+        Pole weights are stored in `self.pole_weight', a numpy array of shape (M, n_orb, n_orb).
+        Shared pole locations are stored in `self.pole_location', a numpy array of shape (M,).
         '''
         if G_w.ndim == 1:
             G_w = G_w.reshape(-1, 1, 1)
@@ -33,8 +57,6 @@ class MiniPoleMatrix:
         
         self.n_w = w.size
         self.n_orb = G_w.shape[1]
-        if symmetry is True:
-            assert G_symmetric is True #update later to deal with unsymmetric case!!!
         if G_symmetric is True:
             self.G_w = 0.5 * (G_w + np.transpose(G_w, axes=(0, 2, 1)))
         else:
@@ -45,8 +67,9 @@ class MiniPoleMatrix:
         self.err_type = err_type
         self.M = M
         self.symmetry = symmetry
+        if symmetry is True and compute_const == True:
+            raise Exception("Set symmetry to be False to calculate the overall constant!")
         self.compute_const = compute_const
-        self.pole_real = pole_real
         if plane is not None:
             self.plane = plane
         elif self.symmetry is False:
@@ -55,54 +78,32 @@ class MiniPoleMatrix:
             self.plane = "w"
         assert self.plane in ["z", "w"]
         self.include_n0 = include_n0
-        self.elementwise = elementwise
-        self.Lfactor = Lfactor
         self.k_max = k_max
-        self.x_range = x_range
-        self.y_range = y_range
+        self.ratio_max = ratio_max
+        
+        #perform the first ESPRIT approximation to approximate Matsubara data
+        G_w_vector = self.G_w.reshape(-1, self.n_orb ** 2)
+        self.p_o = [ESPRIT(G_w_vector[:, i], self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=0.4) for i in range(self.n_orb ** 2)]
+        self.G_approx = [lambda x, idx=i: self.p_o[idx].get_value(x) for i in range(self.n_orb ** 2)]
+        idx_sigma = np.argmax([self.p_o[i].sigma for i in range(self.n_orb ** 2)])
+        self.S = self.p_o[idx_sigma].S
+        self.sigma   = self.p_o[idx_sigma].sigma
+        if n0 == "auto":
+            assert isinstance(n0_shift, int) and n0_shift >= 0
+            p_o2 = [ESPRIT(G_w_vector[:, i], self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=0.5) for i in range(self.n_orb ** 2)]
+            w_cont = np.linspace(self.w[0], self.w[-1], 10 * self.w.size - 9)
+            G_L1 = [self.p_o[i].get_value(w_cont)[:-1].reshape(self.w.size - 1, 10) for i in range(self.n_orb ** 2)]
+            G_L2 = [    p_o2[i].get_value(w_cont)[:-1].reshape(self.w.size - 1, 10) for i in range(self.n_orb ** 2)]
+            self.err_max = max(max([self.p_o[i].err_max for i in range(self.n_orb ** 2)]), max([p_o2[i].err_max for i in range(self.n_orb ** 2)]))
+            G_L_diff = [np.abs(G_L2[i] - G_L1[i]).max(axis=1) for i in range(self.n_orb ** 2)]
+            ctrl_interval = [np.logical_and(G_L_diff[i][:-1] <= self.err_max, G_L_diff[i][0:-1] / G_L_diff[i][1:] < ratio_max) for i in range(self.n_orb ** 2)]
+            self.n0 = max([np.argmax(ctrl_interval[i]) for i in range(self.n_orb ** 2)]) + n0_shift
+        else:
+            assert isinstance(n0, int) and n0 >= 0
+            self.err_max = max([self.p_o[i].err_max for i in range(self.n_orb ** 2)])
+            self.n0 = n0
         
         if self.symmetry is False:
-            #perform the first ESPRIT approximation to approximate Matsubara data
-            if self.elementwise is False:
-                self.p_o = ESPRIT(self.G_w, self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=self.Lfactor)
-                self.G_approx = [lambda x, idx=i: self.p_o.get_value_indiv(x, idx) for i in range(self.n_orb ** 2)]
-                self.S = self.p_o.S
-                self.sigma   = self.p_o.sigma
-                self.err_max = self.p_o.err_max
-                self.err_ave = self.p_o.err_ave
-                if n0 == "auto":
-                    assert self.Lfactor != 0.5
-                    assert isinstance(n0_shift, int) and n0_shift >= 0
-                    p_o2 = ESPRIT(self.G_w, self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=0.5)
-                    w_cont = np.linspace(self.w[0], self.w[-1], 10 * self.w.size - 9)
-                    G_L1 = self.p_o.get_value(w_cont)[:-1].reshape(self.w.size - 1, 10, self.n_orb ** 2)
-                    G_L2 =     p_o2.get_value(w_cont)[:-1].reshape(self.w.size - 1, 10, self.n_orb ** 2)
-                    ctrl_interval = np.all(np.abs(G_L2 - G_L1) <= self.p_o.err_max, axis=(1, 2))
-                    self.n0 = np.argmax(ctrl_interval) + n0_shift #maybe change it later...
-                else:
-                    assert isinstance(n0, int) and n0 >= 0
-                    self.n0 = n0
-            else:
-                G_w_vector = self.G_w.reshape(-1, self.n_orb ** 2)
-                self.p_o = [ESPRIT(G_w_vector[:, i], self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=self.Lfactor) for i in range(self.n_orb ** 2)]
-                self.G_approx = [lambda x, idx=i: self.p_o[idx].get_value(x) for i in range(self.n_orb ** 2)]
-                idx_sigma = np.argmax([self.p_o[i].sigma   for i in range(self.n_orb ** 2)])
-                self.S = self.p_o[idx_sigma].S
-                self.sigma   = self.p_o[idx_sigma].sigma
-                self.err_max = max([self.p_o[i].err_max for i in range(self.n_orb ** 2)])
-                self.err_ave = max([self.p_o[i].err_ave for i in range(self.n_orb ** 2)])
-                if n0 == "auto":
-                    assert self.Lfactor != 0.5
-                    assert isinstance(n0_shift, int) and n0_shift >= 0
-                    p_o2 = [ESPRIT(G_w_vector[:, i], self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=0.5) for i in range(self.n_orb ** 2)]
-                    w_cont = np.linspace(self.w[0], self.w[-1], 10 * self.w.size - 9)
-                    G_L1 = [self.p_o[i].get_value(w_cont)[:-1].reshape(self.w.size - 1, 10) for i in range(self.n_orb ** 2)]
-                    G_L2 = [    p_o2[i].get_value(w_cont)[:-1].reshape(self.w.size - 1, 10) for i in range(self.n_orb ** 2)]
-                    ctrl_interval = [np.all(np.abs(G_L2[i] - G_L1[i]) <= self.err_max, axis=1) for i in range(self.n_orb ** 2)]
-                    self.n0 = max([np.argmax(ctrl_interval[i]) for i in range(self.n_orb ** 2)]) + n0_shift #maybe change it later...
-                else:
-                    assert isinstance(n0, int) and n0 >= 0
-                    self.n0 = n0
             #get the corresponding conformal mapping
             w_m = 0.5 * (self.w[self.n0] + self.w[-1])
             dw_h = 0.5 * (self.w[-1] - self.w[self.n0])
@@ -110,24 +111,20 @@ class MiniPoleMatrix:
             #calculate contour integrals
             self.cal_hk_generic(self.G_approx, k_max)
         else:
-            #use complex poles to approximate Matsubara data in [1j * w[0], +inf)
-            p = MiniPoleMatrix(G_w, w, n0=n0, n0_shift=n0_shift, err=err, err_type=err_type, G_symmetric=G_symmetric, compute_const=compute_const, include_n0=False, elementwise=elementwise, Lfactor=Lfactor, k_max=k_max)
-            self.S = p.S
-            self.G_approx = [lambda x, Al=p.pole_weight.reshape(-1, self.n_orb ** 2)[:, i], xl=p.pole_location: self.cal_G_scalar(1j * x, Al, xl) for i in range(self.n_orb ** 2)]
+            #use complex poles to approximate Matsubara data in [1j * w[-1], +inf)
+            p = MiniPoleMatrix(G_w, w, n0=n0, n0_shift=n0_shift, err=err, err_type=err_type, G_symmetric=G_symmetric, compute_const=compute_const, include_n0=False, k_max=k_max, ratio_max=ratio_max)
+            self.G_approx_tail = [lambda x, Al=p.pole_weight.reshape(-1, self.n_orb ** 2)[:, i], xl=p.pole_location: self.cal_G_scalar(1j * x, Al, xl) for i in range(self.n_orb ** 2)]
             self.const = p.const
-            self.sigma = p.sigma
-            self.n0 = p.n0
-            G_w_approx = self.cal_G_vector(1j * self.w[self.n0:], p.pole_weight.reshape(-1, self.n_orb ** 2), p.pole_location).reshape(-1, self.n_orb, self.n_orb)
-            self.err_max = np.abs(G_w_approx + self.const - self.G_w[self.n0:]).max()
-            self.err_ave = np.abs(G_w_approx + self.const - self.G_w[self.n0:]).mean()
             #get the corresponding conformal mapping
             self.con_map = ConMapGapless(self.w[self.n0])
             #calculate contour integrals
-            self.cal_hk_gapless(self.G_approx, k_max)
+            if G_symmetric is True:
+                self.cal_hk_gapless_symmetric(self.G_approx, self.G_approx_tail, k_max)
+            else:
+                self.cal_hk_gapless(self.G_approx, self.G_approx_tail, k_max)
         
         #apply the second ESPRIT approximation to recover poles
         self.find_poles()
-        self.cut_pole(self.x_range[0], self.x_range[1], self.y_range[0], self.y_range[1])
     
     def cal_hk_generic(self, G_approx, k_max = 999):
         '''
@@ -152,29 +149,71 @@ class MiniPoleMatrix:
         else:
             return (1.0  / np.pi) * integrate.quad(lambda x: G_approx(self.con_map.w_m + self.con_map.dw_h * np.sin(x)), -0.5 * np.pi, 0.5 * np.pi, weight="cos", wvar=k + 1, complex_func=True, epsabs=err, epsrel=err, limit=10000)[0]
     
-    def cal_hk_gapless(self, G_approx, k_max = 999):
+    def cal_hk_gapless_symmetric(self, G_approx_head, G_approx_tail, k_max = 999):
         '''
         Calculate the contour integrals.
         '''
         cutoff = self.err_max
         err = 0.01 * cutoff
         
-        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.float_)
+        theta0 = np.arcsin(self.con_map.w_min / self.w[-1])
+        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.float_)
         for k in range(self.h_k.shape[0]):
             for i in range(self.h_k.shape[1]):
-                    self.h_k[k, i] = self.cal_hk_gapless_indiv(G_approx[i], k, err)
+                    self.h_k[k, i] = self.cal_hk_gapless_symmetric_indiv(G_approx_head[i], k, err, theta0 + 1.e-12, 0.5 * np.pi) + \
+                                     self.cal_hk_gapless_symmetric_indiv(G_approx_tail[i], k, err, 1.e-6, theta0 - 1.e-12)
             if k >= 1:
                 cutoff_matrix = np.logical_and(np.abs(self.h_k[k]) < cutoff, np.abs(self.h_k[k - 1]) < cutoff)
                 if np.all(cutoff_matrix):
                     break
         self.h_k = self.h_k[:(k + 1)]
     
-    def cal_hk_gapless_indiv(self, G_approx, k, err):
-        theta0 = 1.e-6
+    def cal_hk_gapless_symmetric_indiv(self, G_approx, k, err, theta_min, theta_max):
         if k % 2 == 0:
-            return (-2.0 / np.pi) * integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)).imag, theta0, 0.5 * np.pi, weight="sin", wvar=k + 1, epsabs=err, epsrel=err, limit=10000)[0]
+            return (-2.0 / np.pi) * integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)).imag, theta_min, theta_max, weight="sin", wvar=k + 1, epsabs=err, epsrel=err, limit=10000)[0]
         else:
-            return (+2.0 / np.pi) * integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)).real, theta0, 0.5 * np.pi, weight="cos", wvar=k + 1, epsabs=err, epsrel=err, limit=10000)[0]
+            return (+2.0 / np.pi) * integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)).real, theta_min, theta_max, weight="cos", wvar=k + 1, epsabs=err, epsrel=err, limit=10000)[0]
+    
+    def cal_hk_gapless(self, G_approx_head, G_approx_tail, k_max = 999):
+        '''
+        Calculate the contour integrals.
+        '''
+        cutoff = self.err_max
+        err = 0.01 * cutoff
+        
+        theta0 = np.arcsin(self.con_map.w_min / self.w[-1])
+        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.complex_)
+        for k in range(self.h_k.shape[0]):
+            for i in range(self.n_orb):
+                for j in range(i, self.n_orb):
+                    if i == j:
+                        idx = i * self.n_orb + j
+                        self.h_k[k, idx] = self.cal_hk_gapless_symmetric_indiv(G_approx_head[idx], k, err, theta0 + 1.e-12, 0.5 * np.pi) + \
+                                           self.cal_hk_gapless_symmetric_indiv(G_approx_tail[idx], k, err, 1.e-6, theta0 - 1.e-12)
+                    else:
+                        idx1 = i * self.n_orb + j
+                        idx2 = j * self.n_orb + i
+                        h1 = self.cal_hk_gapless_indiv(G_approx_head[idx1], k, err, theta0 + 1.e-12, 0.5 * np.pi) + \
+                             self.cal_hk_gapless_indiv(G_approx_tail[idx1], k, err, 1.e-6, theta0 - 1.e-12)
+                        h2 = self.cal_hk_gapless_indiv(G_approx_head[idx2], k, err, theta0 + 1.e-12, 0.5 * np.pi) + \
+                             self.cal_hk_gapless_indiv(G_approx_tail[idx2], k, err, 1.e-6, theta0 - 1.e-12)
+                        if k % 2 == 0:
+                            self.h_k[k, idx1] = 1.0j / np.pi * (h1 - np.conjugate(h2))
+                            self.h_k[k, idx2] = 1.0j / np.pi * (h2 - np.conjugate(h1))
+                        else:
+                            self.h_k[k, idx1] = 1.0 / np.pi * (h1 + np.conjugate(h2))
+                            self.h_k[k, idx2] = 1.0 / np.pi * (h2 + np.conjugate(h1))
+            if k >= 1:
+                cutoff_matrix = np.logical_and(np.abs(self.h_k[k]) < cutoff, np.abs(self.h_k[k - 1]) < cutoff)
+                if np.all(cutoff_matrix):
+                    break
+        self.h_k = self.h_k[:(k + 1)]
+    
+    def cal_hk_gapless_indiv(self, G_approx, k, err, theta_min, theta_max):
+        if k % 2 == 0:
+            return integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)), theta_min, theta_max, weight="sin", wvar=k + 1, complex_func=True, epsabs=err, epsrel=err, limit=10000)[0]
+        else:
+            return integrate.quad(lambda x: G_approx(self.con_map.w_min / np.sin(x)), theta_min, theta_max, weight="cos", wvar=k + 1, complex_func=True, epsabs=err, epsrel=err, limit=10000)[0]
     
     def find_poles(self):
         '''
@@ -182,25 +221,22 @@ class MiniPoleMatrix:
         '''
         #apply the second ESPRIT
         if self.M is None:
-            self.p_f = ESPRIT(self.h_k, err=self.err_max, Lfactor=self.Lfactor)
+            self.p_f = ESPRIT(self.h_k, err=self.err_max)
         else:
-            self.p_f = ESPRIT(self.h_k, M=self.M, Lfactor=self.Lfactor)
+            self.p_f = ESPRIT(self.h_k, M=self.M)
         
-        if self.symmetry and self.pole_real:
-            self.p_f.gamma = self.p_f.gamma[np.abs(self.p_f.gamma.imag) < 1.e-3].real
-            self.p_f.find_omega()
-        
+        #make sure all mapped poles are inside the unit disk
+        idx0 = np.abs(self.p_f.gamma) < 1.0
         #tranform poles from w-plane to z-plane
-        location = self.con_map.z(self.p_f.gamma)
-        weight = self.p_f.omega * self.con_map.dz(self.p_f.gamma).reshape(-1, 1)
+        location = self.con_map.z(self.p_f.gamma[idx0])
+        weight = self.p_f.omega[idx0] * self.con_map.dz(self.p_f.gamma[idx0]).reshape(-1, 1)
         
-        if self.symmetry is False:
-            if self.compute_const is False:
-                self.const = 0.0
-            else:
-                G_w_approx = self.cal_G_vector(1j * self.w[self.n0:], weight, location)
-                const = (self.G_w[self.n0:] - G_w_approx.reshape(-1, self.n_orb, self.n_orb)).mean(axis=0)
-                self.const = const if np.abs(const).max() > 100.0 * self.err_max else 0.0
+        if self.compute_const is False:
+            self.const = 0.0
+        else:
+            G_w_approx = self.cal_G_vector(1j * self.w[self.n0:], weight, location)
+            const = (self.G_w[self.n0:] - G_w_approx.reshape(-1, self.n_orb, self.n_orb)).mean(axis=0)
+            self.const = const if np.abs(const).max() > 100.0 * self.err_max else 0.0
         
         if self.plane == "z":
             w_tmp   = self.w   if self.include_n0 else self.w[self.n0:]
@@ -217,19 +253,15 @@ class MiniPoleMatrix:
             weight, residuals, rank, s = np.linalg.lstsq(A, (G_w - self.const).reshape(-1, self.n_orb ** 2), rcond=-1)
             self.lstsq_quality = (residuals, rank, s)
         
+        #discard poles with negligible weights
+        idx1 = np.abs(weight).max(axis=1) > self.err_max
+        weight   = weight[idx1]
+        location = location[idx1]
+        
         #rearrange poles so that \xi_1.real <= \xi_2.real <= ... <= \xi_M.real
-        idx = np.argsort(location.real)
-        self.pole_weight   = weight[idx].reshape(-1, self.n_orb, self.n_orb)
-        self.pole_location = location[idx]
-    
-    def cut_pole(self, x_min, x_max, y_min, y_max):
-        '''
-        Only keep poles located within (x_min, x_max) and (y_min, y_max).
-        '''
-        idx_x = np.logical_and(self.pole_location.real > x_min, self.pole_location.real < x_max)
-        idx_y = np.logical_and(self.pole_location.imag > y_min, self.pole_location.imag < y_max)
-        self.pole_weight   = self.pole_weight[np.logical_and(idx_x, idx_y)]
-        self.pole_location = self.pole_location[np.logical_and(idx_x, idx_y)]
+        idx2 = np.argsort(location.real)
+        self.pole_weight   = weight[idx2].reshape(-1, self.n_orb, self.n_orb)
+        self.pole_location = location[idx2]
     
     @staticmethod
     def cal_G_scalar(z, Al, xl):

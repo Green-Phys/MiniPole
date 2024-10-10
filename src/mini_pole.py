@@ -12,7 +12,7 @@ class MiniPole:
         Parameters
         ----------
         G_w : ndarray
-            An (n_w, n_orb, n_orb) array containing the Matsubara data.
+            An (n_w, n_orb, n_orb) or (n_w,) array containing the Matsubara data.
         w : ndarray
             An (n_w,) array containing the corresponding real-valued Matsubara grid.
         n0 : int or str, default="auto"

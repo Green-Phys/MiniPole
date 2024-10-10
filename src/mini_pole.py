@@ -112,7 +112,7 @@ class MiniPole:
             self.cal_hk_generic(self.G_approx, k_max)
         else:
             #use complex poles to approximate Matsubara data in [1j * w[-1], +inf)
-            p = MiniPoleMatrix(G_w, w, n0=n0, n0_shift=n0_shift, err=err, err_type=err_type, G_symmetric=G_symmetric, compute_const=compute_const, include_n0=False, k_max=k_max, ratio_max=ratio_max)
+            p = MiniPole(G_w, w, n0=n0, n0_shift=n0_shift, err=err, err_type=err_type, G_symmetric=G_symmetric, compute_const=compute_const, include_n0=False, k_max=k_max, ratio_max=ratio_max)
             self.G_approx_tail = [lambda x, Al=p.pole_weight.reshape(-1, self.n_orb ** 2)[:, i], xl=p.pole_location: self.cal_G_scalar(1j * x, Al, xl) for i in range(self.n_orb ** 2)]
             self.const = p.const
             #get the corresponding conformal mapping

@@ -93,7 +93,7 @@ b) Parallel computation is supported in **cal_band_dlr.py** to speed up the proc
 c) Full Parameters for **cal_band_dlr.py**:
 
    - `--obs` (str): Observation type used in the script. Default is `"S"`.
-   - `--n0` (int): Parameter \( n_0 \) as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
+   - `--n0` (int): Parameter $n_0$ as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
    - `--err` (float): Error tolerance for computations. Default is `1.e-10`.
    - `--symmetry` (bool): Specifies whether to preserve up-down symmetry in calculations.
 

@@ -1,5 +1,5 @@
 # 1. MiniPole
-The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
+The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000), extending the scalar-valued method introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
 
 The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a uniform grid $\lbrace i\omega_{0}, i\omega_{1}, \cdots, i\omega_{n_{\omega}-1} \rbrace$, where  $\omega_n=\frac{(2n+1)\pi}{\beta}$ for fermions and $\frac{2n\pi}{\beta}$ for bosons, and $n_{\omega}$ is the total number of sampling points.
 

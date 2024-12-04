@@ -5,7 +5,7 @@ from con_map import *
 from green_func import *
 
 class MiniPole:
-    def __init__(self, G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = False, compute_const = False, plane = None, include_n0 = True, k_max = 999, ratio_max = 10):
+    def __init__(self, G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = False, compute_const = False, plane = None, include_n0 = False, k_max = 999, ratio_max = 10):
         '''
         A Python program for obtaining the matrix-valued minimal pole representation.
 

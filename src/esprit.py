@@ -63,7 +63,7 @@ class ESPRIT:
             self.find_omega()
             self.cal_err()
             
-            if self.err_max < ctrl_ratio * self.sigma:
+            if self.err_max < max(ctrl_ratio * self.sigma, 1.e-14 * self.S[0]):
                 break
             else:
                 self.M -= 1

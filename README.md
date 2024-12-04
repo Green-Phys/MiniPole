@@ -48,7 +48,7 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
 
 ## ii) The MPM-DLR algorithm is performed using the following command:
 
-**p = MiniPoleDLR(Al_dlr, xl_dlr, beta, n0, err = None, err_type = "abs", symmetry = False, nmax = None, Lfactor = 0.4)**
+**p = MiniPoleDLR(Al_dlr, xl_dlr, beta, n0, nmax = None, err = None, err_type = "abs", M = None, symmetry = False, k_max=200, Lfactor = 0.4)**
 
     Parameters
     ----------
@@ -56,12 +56,14 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
     2. xl_dlr (numpy.ndarray): DLR grid for the real frequency, an array of shape (r,).
     3. beta (float): Inverse temperature of the system (1/kT).
     4. n0 (int): Number of initial points to discard, typically in the range (0, 10).
-    5. err (float): Error tolerance for calculations.
-    6. err_type (str): Specifies the type of error, "abs" for absolute error or "rel" for relative error.
-    7. symmetry (bool): Whether to impose up-down symmetry (True or False).
-    8. nmax (int): Cutoff for the Matsubara frequency when symmetry is False.
-    9. Lfactor (float): Ratio of L/N in the ESPRIT algorithm.
-
+    5. nmax (int): Cutoff for the Matsubara frequency when symmetry is False.
+    6. err (float): Error tolerance for calculations.
+    7. err_type (str): Specifies the type of error, "abs" for absolute error or "rel" for relative error.
+    8. M (int): Specifies the number of poles to be recovered.
+    9. symmetry (bool): Whether to impose up-down symmetry (True or False).
+    10. k_max (int): Number of moments to be calculated.
+    11. Lfactor (float): Ratio of L/N in the ESPRIT algorithm.
+    
     Returns
     -------
     Minimal pole representation of the given data.

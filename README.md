@@ -1,9 +1,26 @@
-# 1. MiniPole
+# MiniPole
 The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000), extending the scalar-valued method introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
 
 The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a uniform grid $\lbrace i\omega_{0}, i\omega_{1}, \cdots, i\omega_{n_{\omega}-1} \rbrace$, where  $\omega_n=\frac{(2n+1)\pi}{\beta}$ for fermions and $\frac{2n\pi}{\beta}$ for bosons, and $n_{\omega}$ is the total number of sampling points.
 
-## i) The standard MPM is performed using the following command:
+## 1. Installation
+
+### Dependencies
+- `numpy`
+- `scipy`
+- `matplotlib`
+
+### Installation Commands
+1. Via `setup.py`:
+   ```bash
+   python3 setup.py install
+
+2. Or via `pip`:
+   ```bash
+   pip install mini_pole
+
+## 2. Usage
+### i) The standard MPM is performed using the following command:
 
 **p = MiniPole(G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = False, compute_const = False, plane = None, include_n0 = True, k_max = 999, ratio_max = 10)**
         
@@ -46,7 +63,7 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
     Pole weights are stored in p.pole_weight, a numpy array of shape (M, n_orb, n_orb).
     Shared pole locations are stored in p.pole_location, a numpy array of shape (M,).
 
-## ii) The MPM-DLR algorithm is performed using the following command:
+### ii) The MPM-DLR algorithm is performed using the following command:
 
 **p = MiniPoleDLR(Al_dlr, xl_dlr, beta, n0, nmax = None, err = None, err_type = "abs", M = None, symmetry = False, k_max=200, Lfactor = 0.4)**
 
@@ -70,15 +87,15 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
     Pole weights are stored in p.pole_weight, a numpy array of shape (M, n_orb, n_orb).
     Shared pole locations are stored in p.pole_location, a numpy array of shape (M,).
 
-# 2. Examples
+## 3. Examples
 
 The scripts in the *examples* folder demonstrate the usage of MPM and MPM-DLR.
 
-## i) MPM-DLR Algorithm
+### i) MPM-DLR Algorithm
 
 The *examples/MPM_DLR* folder contains scripts to recover the band structure of Si, as shown in the middle panel of Fig. 8 in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
 
-### Steps:
+#### Steps:
 
 a) Download the input data file [Si_dlr.h5](https://drive.google.com/file/d/1_bNvbgOHewiujHYEcf-CCpGxlZP9cRw_/view?usp=drive_link) to the *examples/MPM_DLR/* directory.
 
@@ -86,7 +103,7 @@ b) Obtain the recovered poles by running **python3 cal_band_dlr.py --obs=`<optio
 
 c) Plot the band structure by running **python3 plt_band_dlr.py --obs=`<option>`**.
 
-### Note:
+#### Note:
 
 a) Reference runtime on a single core of a laptop (using the M1 Max Apple chip as an example): 13 seconds for "Gii" and 160 seconds for both "G" and "S".
 

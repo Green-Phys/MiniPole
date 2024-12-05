@@ -1,6 +1,6 @@
 import numpy as np
-from con_map import *
-from esprit import *
+from .esprit import ESPRIT
+from .con_map import ConMapGeneric, ConMapGapless
 
 class MiniPoleDLR:
     '''

@@ -1,4 +1,9 @@
 .DS_Store
-.ipynb_checkpoints
 __pycache__
-
+.ipynb_checkpoints
+*.ipynb
+*.h5
+*.pdf
+build
+dist
+mini_pole.egg-info

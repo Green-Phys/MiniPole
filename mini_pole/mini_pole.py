@@ -1,8 +1,8 @@
 import numpy as np
 import scipy.integrate as integrate
-from esprit import *
-from con_map import *
-from green_func import *
+from .esprit import ESPRIT
+from .con_map import ConMapGeneric, ConMapGapless
+from .green_func import GreenFunc
 
 class MiniPole:
     def __init__(self, G_w, w, n0 = "auto", n0_shift = 0, err = None, err_type = "abs", M = None, symmetry = False, G_symmetric = False, compute_const = False, plane = None, include_n0 = False, k_max = 999, ratio_max = 10):

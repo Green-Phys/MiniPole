@@ -4,10 +4,7 @@ import h5py
 import argparse
 from mpi4py import MPI
 import time
-import sys
-# path to the source directory
-sys.path.append("../../src/")
-from mini_pole_dlr import *
+from mini_pole import MiniPoleDLR
 
 # Initialize the MPI communicator
 comm = MPI.COMM_WORLD

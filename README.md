@@ -1,5 +1,5 @@
 # Minimal Pole Method (MPM)
-The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000), extending the scalar-valued method introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
+The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131), extending the scalar-valued method introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
 
 The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a uniform grid $\lbrace i\omega_{0}, i\omega_{1}, \cdots, i\omega_{n_{\omega}-1} \rbrace$, where  $\omega_n=\frac{(2n+1)\pi}{\beta}$ for fermions and $\frac{2n\pi}{\beta}$ for bosons, and $n_{\omega}$ is the total number of sampling points.
 
@@ -93,7 +93,7 @@ The scripts in the *examples* folder demonstrate the usage of MPM and MPM-DLR.
 
 ### i) MPM-DLR Algorithm
 
-The *examples/MPM_DLR* folder contains scripts to recover the band structure of Si, as shown in the middle panel of Fig. 8 in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
+The *examples/MPM_DLR* folder contains scripts to recover the band structure of Si, as shown in the middle panel of Fig. 9 in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131).
 
 #### Steps:
 
@@ -112,7 +112,7 @@ b) Parallel computation is supported in **cal_band_dlr.py** to speed up the proc
 c) Full Parameters for **cal_band_dlr.py**:
 
    - `--obs` (str): Observation type used in the script. Default is `"S"`.
-   - `--n0` (int): Parameter $n_0$ as described in [arXiv:2410.14000](https://arxiv.org/abs/2410.14000).
+   - `--n0` (int): Parameter $n_0$ as described in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131).
    - `--err` (float): Error tolerance for computations. Default is `1.e-10`.
    - `--symmetry` (bool): Specifies whether to preserve up-down symmetry in calculations.
 

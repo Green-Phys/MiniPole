@@ -91,7 +91,11 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
 
 The scripts in the *examples* folder demonstrate the usage of MPM and MPM-DLR.
 
-### i) MPM-DLR Algorithm
+### i) MPM Algorithm
+
+The *examples/MPM* folder includes a Jupyter notebook that demonstrates how to use `MiniPole` to recover synthetic spectral functions. You can modify the lambda expression in the `GreenFunc` class to recover a different spectrum, but please remember to update the lower and upper bounds (x_min and x_max) of the spectrum accordingly. Additional details will be provided in the future.
+
+### ii) MPM-DLR Algorithm
 
 The *examples/MPM_DLR* folder contains scripts to recover the band structure of Si, as shown in the middle panel of Fig. 9 in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131).
 

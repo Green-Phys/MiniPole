@@ -50,7 +50,7 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
         If False, the constant term is fixed at 0.
     11. plane : str, optional
         Specifies whether to use the original z-plane or the mapped w-plane to compute pole weights.
-    12. include_n0 : bool, default=True
+    12. include_n0 : bool, default=False
         Determines whether to include the first n0 input points when weights are calculated in the z-plane.
     13. k_max : int, default=999
         The maximum number of contour integrals.

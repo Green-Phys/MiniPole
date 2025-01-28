@@ -37,7 +37,7 @@ class ESPRIT:
         self.tol = tol
         
         #note to set data type to be complex even if the input is real! Otherwise the result might be unstable!
-        self.H = np.zeros((self.dim * (self.N - self.L), self.L + 1), dtype=np.complex_)
+        self.H = np.zeros((self.dim * (self.N - self.L), self.L + 1), dtype=np.complex128)
         for l in range(self.N - self.L):
             self.H[(self.dim * l):(self.dim * (l + 1)), :] = self.h_k[l:(l + self.L + 1)].T
         
@@ -109,7 +109,7 @@ class ESPRIT:
         '''
         Find weights of corresponding nodes gamma.
         '''
-        V = np.zeros((self.h_k.shape[0], self.M), dtype=np.complex_)
+        V = np.zeros((self.h_k.shape[0], self.M), dtype=np.complex128)
         for i in range(V.shape[0]):
             V[i, :] = self.gamma ** i
         #using least-squares solution is more stable than using pseudo-inverse
@@ -135,7 +135,7 @@ class ESPRIT:
             V = self.gamma ** ((self.h_k.shape[0] - 1) * x0)
             value = np.dot(V, self.omega[:, col])
         else:
-            V = np.zeros((x0.size, self.gamma.size), dtype=np.complex_)
+            V = np.zeros((x0.size, self.gamma.size), dtype=np.complex128)
             for i in range(V.shape[0]):
                 V[i, :] = self.gamma ** ((self.h_k.shape[0] - 1) * x0[i])
             value = np.dot(V, self.omega[:, col])
@@ -153,7 +153,7 @@ class ESPRIT:
             V = self.gamma ** ((self.h_k.shape[0] - 1) * x0)
             value = np.dot(V, self.omega)
         else:
-            V = np.zeros((x0.size, self.gamma.size), dtype=np.complex_)
+            V = np.zeros((x0.size, self.gamma.size), dtype=np.complex128)
             for i in range(V.shape[0]):
                 V[i, :] = self.gamma ** ((self.h_k.shape[0] - 1) * x0[i])
             value = np.dot(V, self.omega)

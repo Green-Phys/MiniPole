@@ -133,7 +133,7 @@ class MiniPole:
         cutoff = self.err_max
         err = 0.01 * cutoff
         
-        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex_)
+        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex128)
         for k in range(self.h_k.shape[0]):
             for i in range(self.h_k.shape[1]):
                 self.h_k[k, i] = self.cal_hk_generic_indiv(G_approx[i], k, err)
@@ -157,7 +157,7 @@ class MiniPole:
         err = 0.01 * cutoff
         
         theta0 = np.arcsin(self.con_map.w_min / self.w[-1])
-        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.float_)
+        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.float64)
         for k in range(self.h_k.shape[0]):
             for i in range(self.h_k.shape[1]):
                     self.h_k[k, i] = self.cal_hk_gapless_symmetric_indiv(G_approx_head[i], k, err, theta0 + 1.e-12, 0.5 * np.pi) + \
@@ -182,7 +182,7 @@ class MiniPole:
         err = 0.01 * cutoff
         
         theta0 = np.arcsin(self.con_map.w_min / self.w[-1])
-        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.complex_)
+        self.h_k = np.zeros((k_max, len(G_approx_head)), dtype=np.complex128)
         for k in range(self.h_k.shape[0]):
             for i in range(self.n_orb):
                 for j in range(i, self.n_orb):
@@ -247,7 +247,7 @@ class MiniPole:
             else:
                 w = np.hstack((-w_tmp[::-1], w_tmp))
                 G_w = np.concatenate((np.conjugate(np.transpose(G_w_tmp, axes=(0, 2, 1)))[::-1], G_w_tmp), axis=0)
-            A = np.zeros((w.size, location.size), dtype=np.complex_)
+            A = np.zeros((w.size, location.size), dtype=np.complex128)
             for i in range(location.size):
                 A[:, i] = 1.0 / (1j * w - location[i])
             weight, residuals, rank, s = np.linalg.lstsq(A, (G_w - self.const).reshape(-1, self.n_orb ** 2), rcond=-1)

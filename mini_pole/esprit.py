@@ -42,13 +42,17 @@ class ESPRIT:
         for l in range(self.N - self.L):
             self.H[(self.dim * l):(self.dim * (l + 1)), :] = self.h_k[l:(l + self.L + 1)].T
         
-        #there is a very low chance that SVD does not converge
+        #for some specific versions of numpy, there is a very low chance that SVD does not converge
         while True:
             try:
                 _, self.S, self.W = np.linalg.svd(self.H, full_matrices=False)
                 break
             except:
-                self.H = self.H[:, :-1]
+                #reconstruct the Hankel matrix
+                self.L -= 1
+                self.H = np.zeros((self.dim * (self.N - self.L), self.L + 1), dtype=np.complex128)
+                for l in range(self.N - self.L):
+                    self.H[(self.dim * l):(self.dim * (l + 1)), :] = self.h_k[l:(l + self.L + 1)].T
         
         if self.M is None:
             self.find_M_with_err() if self.err is not None else self.find_M_with_exp_decay()

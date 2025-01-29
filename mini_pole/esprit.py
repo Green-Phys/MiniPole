@@ -1,4 +1,5 @@
 import numpy as np
+from kneed import KneeLocator
 import warnings
 
 class ESPRIT:
@@ -82,28 +83,13 @@ class ESPRIT:
             print("err is set to be too small!")
         self.M = idx
     
-    '''
-    def find_M_with_exp_decay(self):
-        ''
-        Find the maximum index for the exponentially decaying region.
-        ''
-        log_S = -np.log(self.S)
-        dS = log_S[1] - log_S[0]
-        self.M = np.where((np.diff(log_S) < 0.2 * dS) == True)[0][0]
-    '''
-    
     def find_M_with_exp_decay(self):
         '''
         Find the maximum index for the exponentially decaying region.
         '''
-        n_max = min(3 * int(np.log(1.e12)), int(0.8 * self.S.size))
-        idx_fit = np.arange(int(0.5 * n_max), n_max)
-        val_fit = self.S[idx_fit]
-        
-        A = np.vstack((idx_fit, np.ones_like(idx_fit))).T
-        a, b = np.linalg.pinv(A) @ np.log(val_fit)
-        self.S_approx = np.exp(a * np.arange(n_max) + b)
-        self.M = sum(self.S[:n_max] > 3.0 * self.S_approx) + 1
+        kneedle = KneeLocator(np.arange(self.S.size), np.log(self.S), S=1, curve='convex', direction='decreasing')
+        self.dlogS = np.abs(np.diff(np.log(self.S[:(kneedle.knee + 1)]), n=1))
+        self.M = np.where(self.dlogS > 0.3)[0][-1] + 1
     
     def find_omega(self):
         '''

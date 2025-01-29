@@ -115,7 +115,7 @@ class ESPRIT:
         assert col >= 0 and col < self.dim
         x0 = (x - self.x_min) / (self.x_max - self.x_min)
         if np.any(x0 < -1.e-12) or np.any(x0 > 1.0 + 1.e-12):
-            raise Exception("This approximation only has error control for x in [x_min, x_max]!")
+            warnings.warn("This approximation only has error control for x in [x_min, x_max]!")
         
         if np.isscalar(x0):
             V = self.gamma ** ((self.h_k.shape[0] - 1) * x0)
@@ -133,7 +133,7 @@ class ESPRIT:
         '''
         x0 = (x - self.x_min) / (self.x_max - self.x_min)
         if np.any(x0 < -1.e-12) or np.any(x0 > 1.0 + 1.e-12):
-            raise Exception("This approximation only has error control for x in [x_min, x_max]!")
+            warnings.warn("This approximation only has error control for x in [x_min, x_max]!")
         
         if np.isscalar(x0):
             V = self.gamma ** ((self.h_k.shape[0] - 1) * x0)

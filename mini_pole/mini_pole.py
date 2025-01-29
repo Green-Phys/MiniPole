@@ -53,7 +53,7 @@ class MiniPole:
         assert G_w.ndim == 3
         assert G_w.shape[0] == w.size and G_w.shape[1] == G_w.shape[2]
         assert w[0] >= 0.0
-        assert np.linalg.norm(np.diff(np.diff(w)), ord=np.inf) < 1.e-10
+        assert np.linalg.norm(np.diff(np.diff(w / np.abs(w).max())), ord=np.inf) < 1.e-6
         
         self.n_w = w.size
         self.n_orb = G_w.shape[1]

@@ -221,9 +221,9 @@ class MiniPole:
         '''
         #apply the second ESPRIT
         if self.M is None:
-            self.p_f = ESPRIT(self.h_k, err=self.err_max)
+            self.p_f = ESPRIT(self.h_k, err=self.err_max, Lfactor=0.5)
         else:
-            self.p_f = ESPRIT(self.h_k, M=self.M)
+            self.p_f = ESPRIT(self.h_k, M=self.M, Lfactor=0.5)
         
         #make sure all mapped poles are inside the unit disk
         idx0 = np.abs(self.p_f.gamma) < 1.0

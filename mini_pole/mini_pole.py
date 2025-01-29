@@ -299,11 +299,14 @@ class MiniPole:
         plt.show()
     
     def check_valid(self):
+        self.check_svd()
+        self.check_first_approx()
+        self.check_h_k()
+        self.check_final_approx()
+        self.check_pts()
+    
+    def check_svd(self):
         import matplotlib.pyplot as plt
-        #dynamically generate colors, line styles, and markers based on the number of curves
-        num_curves = self.n_orb ** 2
-        line_styles = ['-', '-.', ':', '--'] * (num_curves // 4 + 1)
-        
         #check svd of the input data
         plt.figure()
         plt.semilogy(self.S, ".")
@@ -314,7 +317,11 @@ class MiniPole:
         plt.ylabel(r"$\sigma_n$")
         plt.title("SVD of the input data")
         plt.show()
-        
+    
+    def check_first_approx(self):
+        import matplotlib.pyplot as plt
+        num_curves = self.n_orb ** 2
+        line_styles = ['-', '-.', ':', '--'] * (num_curves // 4 + 1)
         #check the first approximation
         plt.figure()
         for i in range(self.n_orb ** 2):
@@ -328,7 +335,9 @@ class MiniPole:
         plt.ylabel(r"$|\hat{G}(i\omega_n) - G(i\omega_n)|$")
         plt.title("First approximation")
         plt.show()
-        
+    
+    def check_h_k(self):
+        import matplotlib.pyplot as plt
         #check h_k
         #part 1
         plt.figure()
@@ -369,7 +378,11 @@ class MiniPole:
         plt.ylabel(r"$|\hat{h}_k - h_k|$")
         plt.title("Contour integrals: approximation")
         plt.show()
-        
+    
+    def check_final_approx(self):
+        import matplotlib.pyplot as plt
+        num_curves = self.n_orb ** 2
+        line_styles = ['-', '-.', ':', '--'] * (num_curves // 4 + 1)
         #check the final approximation
         plt.figure()
         G_w2 = self.cal_G_vector(1j * self.w, self.pole_weight.reshape(-1, self.n_orb ** 2), self.pole_location).reshape(-1, self.n_orb, self.n_orb) + self.const
@@ -386,7 +399,9 @@ class MiniPole:
         plt.ylabel(r"$|\hat{G}(i\omega_n) - G(i\omega_n)|$")
         plt.title("Final approximation")
         plt.show()
-        
+    
+    def check_pts(self):
+        import matplotlib.pyplot as plt
         from matplotlib.colors import LinearSegmentedColormap
         colors = [(1, 1, 1), (0, 0, 1)] #(R, G, B) tuples for white and blue
         n_bins = 100 #Discretize the interpolation into bins

@@ -221,7 +221,7 @@ class MiniPole:
         '''
         #apply the second ESPRIT
         if self.M is None:
-            self.p_f = ESPRIT(self.h_k, err=0.5*self.err_max, Lfactor=0.5)
+            self.p_f = ESPRIT(self.h_k, err=0.5 * self.err_max, Lfactor=0.5)
         else:
             self.p_f = ESPRIT(self.h_k, M=self.M, Lfactor=0.5)
         
@@ -356,7 +356,7 @@ class MiniPole:
         plt.semilogy(self.p_f.S, ".")
         if self.M is not None:
             plt.semilogy([0, self.p_f.S.size - 1], [self.p_f.S[self.M], self.p_f.S[self.M]], color="gray", linestyle="--", label="M poles")
-        plt.semilogy([0, self.p_f.S.size - 1], [self.err_max, self.err_max], color="k", label="precision")
+        plt.semilogy([0, self.p_f.S.size - 1], [0.5 * self.err_max, 0.5 * self.err_max], color="k", label="0.5 precision")
         plt.legend()
         plt.xlabel(r"$n$")
         plt.ylabel(r"$\sigma_n$")

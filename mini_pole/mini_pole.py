@@ -221,7 +221,7 @@ class MiniPole:
         '''
         #apply the second ESPRIT
         if self.M is None:
-            self.p_f = ESPRIT(self.h_k, err=self.err_max, Lfactor=0.5)
+            self.p_f = ESPRIT(self.h_k, err=0.5*self.err_max, Lfactor=0.5)
         else:
             self.p_f = ESPRIT(self.h_k, M=self.M, Lfactor=0.5)
         

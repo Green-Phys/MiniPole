@@ -56,6 +56,10 @@ class ESPRIT:
         
         if self.M is None:
             self.find_M_with_err() if self.err is not None else self.find_M_with_exp_decay()
+            if self.S[self.M] / self.S[0] < 1.e-14:
+                self.err = 1.e-14
+                self.err_type = "rel"
+                self.find_M_with_err()
         else:
             self.M = min(self.M, self.S.size - 1)
         while True:
@@ -93,7 +97,7 @@ class ESPRIT:
         '''
         kneedle = KneeLocator(np.arange(self.S.size), np.log(self.S), S=1, curve='convex', direction='decreasing')
         self.dlogS = np.abs(np.diff(np.log(self.S[:(kneedle.knee + 1)]), n=1))
-        self.M = np.where(self.dlogS > 0.3)[0][-1] + 1
+        self.M = np.where(self.dlogS > 0.5)[0][-1] + 1
     
     def find_omega(self):
         '''

@@ -97,7 +97,7 @@ class ESPRIT:
         '''
         kneedle = KneeLocator(np.arange(self.S.size), np.log(self.S), S=1, curve='convex', direction='decreasing')
         self.dlogS = np.abs(np.diff(np.log(self.S[:(kneedle.knee + 1)]), n=1))
-        self.M = np.where(self.dlogS / self.dlogS.max() > 0.5)[0][-1] + 1
+        self.M = np.where(self.dlogS > self.dlogS.max() / 3)[0][-1] + 1
     
     def find_omega(self):
         '''

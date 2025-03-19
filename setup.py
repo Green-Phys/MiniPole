@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="mini_pole",
-    version="0.2",
-    description="The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in arXiv:2410.14000.",
+    version="0.3",
+    description="The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in Phys. Rev. B 110, 235131 (2024).",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Lei Zhang",

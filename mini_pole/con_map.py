@@ -165,3 +165,118 @@ class ConMapRet:
         Calculate dz/dw at value w.
         '''
         return np.vectorize(self.cal_dz)(w)
+
+class ConMapRfFnt:
+    '''
+    Holomorphic mapping which works for a finite interval of real frequencies.
+    '''
+    def __init__(self, w_m, dw_h, eta = 0.0):
+        '''
+        Initialize the class with w_m, dw_h and eta.
+        '''
+        assert w_m.imag  == 0.0
+        assert dw_h.real >  0.0 and dw_h.imag == 0.0
+        assert eta.real  >= 0.0 and eta.imag  == 0.0
+        self.w_m = w_m + 1j * eta
+        self.dw_h = dw_h
+        self.w_inf = [0.0]
+    
+    def cal_z(self, w):
+        '''
+        Intermediate function of z(w) which only works for a single point.
+        '''
+        if w in self.w_inf:
+            return np.inf
+        else:
+            return 0.5 * self.dw_h * (w + 1.0 / w) + self.w_m
+    
+    def cal_w(self, z):
+        '''
+        Intermediate function of w(z) which only works for a single point.
+        '''
+        x = (z - self.w_m) / self.dw_h
+        w = x + np.sqrt(x ** 2.0 - 1.0)
+        if np.absolute(w) > 1.0:
+            w = 2.0 * x - w
+        return w
+    
+    def cal_dz(self, w):
+        '''
+        Intermediate function of dz(w) which only works for single point.
+        '''
+        if w in self.w_inf:
+            return np.inf
+        else:
+            return 0.5 * self.dw_h * (1.0 - 1.0 / w ** 2.0)
+    
+    def z(self, w):
+        '''
+        Calculate z from w.
+        '''
+        return np.vectorize(self.cal_z)(w)
+    
+    def w(self, z):
+        '''
+        Calculate w from z.
+        '''
+        return np.vectorize(self.cal_w)(z)
+    
+    def dz(self, w):
+        '''
+        Calculate dz/dw at value w.
+        '''
+        return np.vectorize(self.cal_dz)(w)
+
+class ConMapRfInf:
+    '''
+    Holomorphic mapping which works for the whole interval of real frequencies.
+    '''
+    def __init__(self, w_max = 1):
+        '''
+        Initialize the class with w_max.
+        '''
+        assert w_max > 0
+        self.w_max = w_max
+        self.w_inf = [1.0]
+    
+    def cal_z(self, w):
+        '''
+        Intermediate function of z(w) which only works for a single point.
+        '''
+        if w in self.w_inf:
+            return np.inf
+        else:
+            return 1j * self.w_max * (w + 1.0) / (w - 1.0)
+    
+    def cal_w(self, z):
+        '''
+        Intermediate function of w(z) which only works for a single point.
+        '''
+        return (z + 1j * self.w_max) / (z - 1j * self.w_max)
+    
+    def cal_dz(self, w):
+        '''
+        Intermediate function of dz(w) which only works for single point.
+        '''
+        if w in self.w_inf:
+            return np.inf
+        else:
+            return -2j * self.w_max / (w - 1.0) ** 2.0
+    
+    def z(self, w):
+        '''
+        Calculate z from w.
+        '''
+        return np.vectorize(self.cal_z)(w)
+    
+    def w(self, z):
+        '''
+        Calculate w from z.
+        '''
+        return np.vectorize(self.cal_w)(z)
+    
+    def dz(self, w):
+        '''
+        Calculate dz/dw at value w.
+        '''
+        return np.vectorize(self.cal_dz)(w)

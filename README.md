@@ -1,7 +1,23 @@
 # Minimal Pole Method (MPM)
-The Python code provided implements the matrix-valued version of the Minimal Pole Method (MPM) as described in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131), extending the scalar-valued method introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
 
-The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a uniform grid $\lbrace i\omega_{0}, i\omega_{1}, \cdots, i\omega_{n_{\omega}-1} \rbrace$, where  $\omega_n=\frac{(2n+1)\pi}{\beta}$ for fermions and $\frac{2n\pi}{\beta}$ for bosons, and $n_{\omega}$ is the total number of sampling points.
+This repository provides a Python implementation of the **matrix-valued Minimal Pole Method (MPM)** for both Matsubara and real-frequency data.
+
+## 🔬 For the Analytic Continuation Community
+
+The method is described in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131), which extends the scalar-valued approach introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
+
+The input Matsubara data is $G(i\omega_n)$, sampled on a *non-negative* uniform grid $\lbrace i\omega_0, i\omega_1, \cdots, i\omega_{n_\omega - 1} \rbrace$, where  
+- $\omega_n = \frac{(2n+1)\pi}{\beta}$ for fermions
+- $\omega_n = \frac{2n\pi}{\beta}$ for bosons 
+- $n_\omega$ is the total number of sampling points
+
+**Relevant classes**: `MiniPole`, `MiniPoleDLR`
+
+## 🌱 For the HEOM Community
+
+For applications involving real-frequency data used in Hierarchical Equations of Motion (HEOM), use:
+
+**Relevant classes**: `MiniPoleRf`, `MiniPoleRfDPR`
 
 ## 1. Installation
 
@@ -9,13 +25,14 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
 - `numpy`
 - `scipy`
 - `matplotlib`
+- `kneed`
 
 ### Installation Commands
-1. Via `setup.py`:
+1. Install the latest (unreleased) version from source
    ```bash
    python3 setup.py install
 
-2. Or via `pip`:
+2. Install the latest released version via pip
    ```bash
    pip install mini_pole
 
@@ -60,8 +77,8 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
     Returns
     -------
     Minimal pole representation of the given data.
-    Pole weights are stored in p.pole_weight, a numpy array of shape (M, n_orb, n_orb).
-    Shared pole locations are stored in p.pole_location, a numpy array of shape (M,).
+    Pole weights are stored in `p.pole_weight`, a numpy array of shape (M, n_orb, n_orb).
+    Shared pole locations are stored in `p.pole_location`, a numpy array of shape (M,).
 
 ### ii) The MPM-DLR algorithm is performed using the following command:
 
@@ -84,12 +101,92 @@ The input of the simulation is the Matsubara data $G(i \omega_n)$ sampled on a u
     Returns
     -------
     Minimal pole representation of the given data.
-    Pole weights are stored in p.pole_weight, a numpy array of shape (M, n_orb, n_orb).
-    Shared pole locations are stored in p.pole_location, a numpy array of shape (M,).
+    Pole weights are stored in `p.pole_weight`, a numpy array of shape (M, n_orb, n_orb).
+    Shared pole locations are stored in `p.pole_location`, a numpy array of shape (M,).
+
+### iii) The standard MPM for real-frequency fitting is performed using the following command:
+
+**p = MiniPoleRf(G_rf, func_type = "real", interval_type = "infinite", w_min = -10, w_max = 10, wp_max = 1, sing_vals = None, err = None, M = None, compute_const = False, k_max = 999, Lfactor = 0.4)**
+
+    Parameters
+    ----------
+    1. G_rf : list
+       A list of length n_orb² containing analytic expressions of the real-frequency Green's functions.
+    2. func_type : str
+        Specifies the type of functions in G_rf; either "real" for real-valued or "complex" for complex-valued.
+    3. interval_type : str
+        Specifies the type of real-frequency interval; either "infinite" or "finite".
+    4. w_min : float
+        Lower bound of the finite real-frequency interval.
+    5. w_max : float
+        Upper bound of the finite real-frequency interval.
+    6. wp_max : float
+        Parameter used in the Möbius transform for the infinite real-frequency interval.
+    7. sing_vals : list
+        List of singular values of G_rf.
+    8. err : float
+        Error tolerance used during the approximation process.
+    9. M : int
+        Number of poles in the final result.
+    10. compute_constant : bool
+        Whether to compute the constant term in the approximation.
+    11. k_max : int
+        Maximum number of contour integrals.
+    12. Lfactor : float
+        Ratio L / N used in ESPRIT.
+    
+    Returns
+    -------
+    Minimal pole representation of the real-frequency Green's functions.
+    Pole weights are stored in `p.pole_weight`, a numpy array of shape (M, n_orb, n_orb).  
+    Shared pole locations are stored in `p.pole_location`, a numpy array of shape (M,).
+
+### iv) The MPM algorithm for real-frequency fitting using a discrete pole representation (e.g., from AAA results) can be executed with the following command:
+
+**p = MiniPoleRfDPR(Al_dpr, xl_dpr, interval_type = "infinite", w_min = -10, w_max = 10, wp_max = 1, err = None, err_type = "abs", cutoff_err = None, cutoff_err_type = "abs", M = None, k_max = 999, Lfactor = 0.4, alpha = 1.0, minimal_k = False)**
+
+    Parameters
+    ----------
+    1. Al_dpr : numpy.ndarray
+        Complex pole weights, either of shape (r,) or (r, n_orb, n_orb).
+    2. xl_dpr : numpy.ndarray
+        Complex pole locations, an array of shape (r,).
+    3. interval_type : str
+        Specifies the type of real-frequency interval; either "infinite" or "finite".
+    4. w_min : float
+        Lower bound of the finite real-frequency interval.
+    5. w_max : float
+        Upper bound of the finite real-frequency interval.
+    6. wp_max : float
+        Parameter used in the Möbius transform for the infinite real-frequency interval.
+    7. err : float
+        Error tolerance used during the approximation process.
+    8. err_type : str
+        Type of error to use; either "abs" for absolute error or "rel" for relative error.
+    9. cutoff_err : float
+        Cutoff value for h_k.
+    10. cutoff_err_type : str
+        Specifies whether the cutoff is based on absolute ("abs") or relative ("rel") error.
+    11. M : int
+        Number of poles in the final result.
+    12. k_max : int
+        Maximum number of contour integrals.
+    13. Lfactor : float
+        Ratio L / N used in ESPRIT.
+    14. alpha : float
+        Scaling parameter inside the unit disk to accelerate convergence.
+    15. minimal_k : bool
+        Whether to use a minimal number of h_k based on the size of `xl_dpr`.
+    
+    Returns
+    -------
+    Minimal pole representation of the given data.
+    Pole weights are stored in `p.pole_weight`, a numpy array of shape (M, n_orb, n_orb).  
+    Shared pole locations are stored in `p.pole_location`, a numpy array of shape (M,).
 
 ## 3. Examples
 
-The scripts in the *examples* folder demonstrate the usage of MPM and MPM-DLR.
+The scripts in the *examples* folder demonstrate the usage of MPM, MPM-DLR and MPM-RF.
 
 ### i) MPM Algorithm
 
@@ -127,3 +224,7 @@ d) Full Parameters for **plt_band_dlr.py**:
    - `--w_max` (float): Upper bound of the real frequency in eV. Default is `12`.
    - `--n_w` (int): Number of frequencies between `w_min` and `w_max`. Default is `200`.
    - `--eta` (float): Broadening parameter. Default is `0.005`.
+
+### iii) MPM Algorithm for real-frequency fitting 
+
+The *examples/MPM_RF* folder contains Jupyter notebooks that demonstrate how to use `MiniPoleRf` to obtain poles for both typical spectral functions and a sub-Ohmic bath.

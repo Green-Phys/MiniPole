@@ -1,3 +1,8 @@
+[![Downloads](https://pepy.tech/badge/mini-pole)](https://pepy.tech/project/mini-pole)
+[![GitHub license](https://img.shields.io/github/license/Green-Phys/MiniPole?cacheSeconds=3600&color=informational&label=License)](./LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15121302.svg)](https://zenodo.org/doi/10.5281/zenodo.15121302)
+[![PyPI version](https://img.shields.io/pypi/v/mini-pole.svg?logo=python&logoColor=white)](https://pypi.org/project/mini-pole/)
+
 # Minimal Pole Method (MPM)
 
 This repository provides a Python implementation of the **matrix-valued Minimal Pole Method (MPM)** for both Matsubara and real-frequency data.

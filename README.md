@@ -20,7 +20,7 @@ The input Matsubara data is $G(i\omega_n)$, sampled on a *non-negative* uniform 
 
 ## 🌱 For the HEOM Community
 
-For applications involving real-frequency data used in Hierarchical Equations of Motion (HEOM), further details are provided in [arXiv:2504.01163](https://arxiv.org/abs/2504.01163).
+For applications involving real-frequency data used in Hierarchical Equations of Motion (HEOM), further details are provided in [J. Chem. Phys. 162, 214111 (2025)](https://doi.org/10.1063/5.0273763).
 
 **Relevant classes**: `MiniPoleRf`, `MiniPoleRfDPR`
 

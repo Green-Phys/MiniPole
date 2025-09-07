@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mini_pole",
-    version="0.4",
+    version="0.5",
     description="This Python code implements the Minimal Pole Method (MPM) for both Matsubara and real-frequency data.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

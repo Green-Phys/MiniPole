@@ -57,7 +57,7 @@ if obs == "Gii":
     # Obtain band structure
     nk  = Al_Gii.shape[1]
     nao = Al_Gii.shape[2]
-    DOS_G_dlr_diag = np.zeros((freqs.size, nk, nao), dtype=np.float_)
+    DOS_G_dlr_diag = np.zeros((freqs.size, nk, nao), dtype=np.float64)
     for k in range(nk):
         for n in range(nao):
             DOS_G_dlr_diag[:, k, n] = -1.0 / np.pi * cal_G(freqs + 1j * eta, Al_Gii[:np_Gii[k, n], k, n], xl_Gii[:np_Gii[k, n], k, n]).imag
@@ -72,7 +72,7 @@ elif obs == "G":
     # Obtain band structure
     nao = Al_G.shape[1]
     nk  = Al_G.shape[2]
-    DOS_G_dlr = np.zeros((freqs.size, nk, nao), dtype=np.float_)
+    DOS_G_dlr = np.zeros((freqs.size, nk, nao), dtype=np.float64)
     for k in range(nk):
         DOS_G_dlr[:, k, :] = -1.0 / np.pi * cal_G_vector(freqs + 1j * eta, Al_G[:np_G[k], :, k], xl_G[:np_G[k], k]).imag
     band = DOS_G_dlr.sum(axis=2)
@@ -86,7 +86,7 @@ else:
     # Obtain retarded self-energy
     nao = Al_S.shape[1]
     nk  = Al_S.shape[3]
-    S_ret_dlr = np.zeros((freqs.size, nk, nao, nao), dtype=np.complex_)
+    S_ret_dlr = np.zeros((freqs.size, nk, nao, nao), dtype=np.complex128)
     for k in range(nk):
         S_ret_dlr[:, k, :, :] = cal_G_vector(freqs + 1j * eta,  Al_S[:np_S[k], :, :, k].reshape(-1, nao**2), xl_S[:np_S[k], k]).reshape(-1, nao, nao)
     # Perform Dyson equation above the real axis

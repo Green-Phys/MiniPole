@@ -74,7 +74,7 @@ class MiniPoleRf:
             sing_theta = np.concatenate(([0], np.sort(np.angle(self.con_map.w(sing_vals))), [np.pi]))
             iter_theta = [[sing_theta[i], sing_theta[i+1]] for i in range(len(sing_theta) - 1)]
         
-        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex_)
+        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex128)
         for k in range(self.h_k.shape[0]):
             for i in range(self.h_k.shape[1]):
                 for theta_min, theta_max in iter_theta:
@@ -102,7 +102,7 @@ class MiniPoleRf:
             sing_theta = np.concatenate(([1.e-12], np.sort(np.angle(self.con_map.w(sing_vals))), [2.0 * np.pi - 1.e-12]))
             iter_theta = [[sing_theta[i], sing_theta[i+1]] for i in range(len(sing_theta) - 1)]
         
-        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex_)
+        self.h_k = np.zeros((k_max, len(G_approx)), dtype=np.complex128)
         for k in range(self.h_k.shape[0]):
             for i in range(self.h_k.shape[1]):
                 for theta_min, theta_max in iter_theta:

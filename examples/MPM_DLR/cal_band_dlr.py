@@ -61,12 +61,12 @@ n_iter = nk if obs == "S" or obs == "G" else nk * nao
 # Calculate the start and end indices for each rank
 iter_list = np.arange(rank, n_iter, size)
 if obs == "S" or obs == "G":
-    Al_i = np.zeros((np_max, nao, nao, iter_list.size), dtype=np.complex_)
-    xl_i = np.zeros((np_max, iter_list.size), dtype=np.complex_)
+    Al_i = np.zeros((np_max, nao, nao, iter_list.size), dtype=np.complex128)
+    xl_i = np.zeros((np_max, iter_list.size), dtype=np.complex128)
     np_i = np.zeros((iter_list.size,), dtype=np.int_)
 else:
-    Al_i = np.zeros((np_max, iter_list.size), dtype=np.complex_)
-    xl_i = np.zeros((np_max, iter_list.size), dtype=np.complex_)
+    Al_i = np.zeros((np_max, iter_list.size), dtype=np.complex128)
+    xl_i = np.zeros((np_max, iter_list.size), dtype=np.complex128)
     np_i = np.zeros((iter_list.size,), dtype=np.int_)
 
 # Parallelize the for loop

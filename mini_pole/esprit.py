@@ -66,7 +66,7 @@ class ESPRIT:
             self.sigma = self.S[self.M]
             self.W_0 = self.W[:self.M, :-1]
             self.W_1 = self.W[:self.M, 1:]
-            self.F_M = np.linalg.pinv(self.W_0.T) @ self.W_1.T
+            self.F_M = np.linalg.lstsq(self.W_0.T, self.W_1.T, rcond=-1)[0]
             
             self.gamma = np.linalg.eigvals(self.F_M)
             self.find_omega()

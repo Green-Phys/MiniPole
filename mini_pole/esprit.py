@@ -41,6 +41,8 @@ class ESPRIT:
         if np.linalg.norm(h_k) == 0:
             self.omega = np.array([]).reshape(0, self.dim)
             self.gamma = np.array([])
+            self.sigma = 0
+            self.err_max = 0
             return
         
         #note to set data type to be complex even if the input is real! Otherwise the result might be unstable!

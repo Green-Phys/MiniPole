@@ -5,7 +5,7 @@ class ConMapGeneric:
     Generic holomorphic mapping which works for any cases.
     '''
     def __init__(self, w_m, dw_h, branch_in = True):
-        '''
+        r'''
         Initialize the class with w_m and dw_h, which correspond to $\omega_{\rm m}$ and $\Delta \omega_{\rm h}$ in the paper, respectively.
         Points in the z plane are mapped to the inside (outside) of the unit disk in the w plane when branch_in is True (False).
         '''

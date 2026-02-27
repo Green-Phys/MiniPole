@@ -84,7 +84,7 @@ class MiniPole:
         #perform the first ESPRIT approximation to approximate Matsubara data
         G_w_vector = self.G_w.reshape(-1, self.n_orb ** 2)
         self.p_o = [ESPRIT(G_w_vector[:, i], self.w[0], self.w[-1], err=self.err, err_type=self.err_type, Lfactor=0.4) for i in range(self.n_orb ** 2)]
-        self.G_approx = [lambda x, idx=i: self.p_o[idx].get_value(x) for i in range(self.n_orb ** 2)]
+        self.G_approx = [lambda x, idx=i: self.p_o[idx].get_value_indiv(x, 0) for i in range(self.n_orb ** 2)]
         idx_sigma = np.argmax([self.p_o[i].sigma for i in range(self.n_orb ** 2)])
         self.S = self.p_o[idx_sigma].S
         self.sigma   = self.p_o[idx_sigma].sigma

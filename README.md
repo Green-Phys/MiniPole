@@ -7,6 +7,9 @@
 
 This repository provides a Python implementation of the **matrix-valued Minimal Pole Method (MPM)** for both Matsubara and real-frequency data.
 
+> [!IMPORTANT]
+>Below is a brief overview of the repository's functionality. For a more detailed explanation, please refer to Chapter 10, *Mini-Pole Tutorial*, of the thesis [*Complex Pole Representation and Its Applications to Quantum Many-Body Problems*](https://deepblue.lib.umich.edu/items/1a617cdb-4f86-4962-b975-4bfe7d123150).
+
 ## 🔬 For the Analytic Continuation Community
 
 The method is described in [Phys. Rev. B 110, 235131 (2024)](https://doi.org/10.1103/PhysRevB.110.235131), which extends the scalar-valued approach introduced in [Phys. Rev. B 110, 035154 (2024)](https://doi.org/10.1103/PhysRevB.110.035154).
